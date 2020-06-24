@@ -1,0 +1,3 @@
+displayName = Platinum Omega
+author = Platinum Omega, Dr. Yamok
+version = 0.1
