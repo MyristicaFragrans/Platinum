@@ -17,7 +17,7 @@ namespace Platinum.NPCs {
 
 
         public override bool Autoload(ref string name) {
-            name = "Emissary of the Flock";
+            name = "Brother of the Merchant of Travels";
             return mod.Properties.Autoload;
         }
         public static List<Item> shopItems = new List<Item>();
@@ -49,7 +49,7 @@ namespace Platinum.NPCs {
 
         public override void SetStaticDefaults() {
             // DisplayName automatically assigned from .lang files, but the commented line below is the normal approach.
-            DisplayName.SetDefault("Emissary of the Flock");
+            DisplayName.SetDefault("Brother of the Merchant of Travels");
             Main.npcFrameCount[npc.type] = 25;
             NPCID.Sets.ExtraFramesCount[npc.type] = 9;
             NPCID.Sets.AttackFrameCount[npc.type] = 4;
@@ -99,30 +99,49 @@ namespace Platinum.NPCs {
         }
 
         public override string TownNPCName() {
-            return "Galactic Knight";
+            switch( WorldGen.genRand.Next(8) ) {
+                case 0:
+                    return "Galactic Knight";
+                case 1:
+                    return "17";
+                case 2:
+                    return "Shadow bounty hunter";
+                case 3:
+                    return "Twilight darkness";
+                case 5:
+                    return "Spaceman sam";
+                case 6:
+                    return "First engineer officer roger";
+                case 7:
+                    return "Scientist Terry";
+                case 8:
+                default:
+                    return "Regular old Ed";
+            }
         }
 
-        public override void FindFrame(int frameHeight) {
-            /*npc.frame.Width = 40;
-			if (((int)Main.time / 10) % 2 == 0)
-			{
-				npc.frame.X = 40;
-			}
-			else
-			{
-				npc.frame.X = 0;
-			}*/
-        }
-        
-		// Consider using this alternate approach to choosing a random thing. Very useful for a variety of use cases.
-		// The WeightedRandom class needs "using Terraria.Utilities;" to use
 		public override string GetChat()
 		{
 			WeightedRandom<string> chat = new WeightedRandom<string>();
-			chat.Add("The birds. They are coming.");
+			/*chat.Add("The birds. They are coming.");
 			chat.Add("Ravens. Robins. Gulls.");
 			chat.Add("They are calling for you.");
-			chat.Add("The flock guides us all");
+			chat.Add("The flock guides us all");*/ //Shifting from Emissary if the flock
+            int guide = NPC.FindFirstNPC(NPCID.Guide);
+            if(guide>-1) {
+                chat.Add("You know I honestly feel bad for the guide: voodoo dolls that are being tossed into the fire, I mean come on those are perfect for shop displays, i could see signs saying, \"New fashionable doll in stores today\", you know?");
+            }
+            int nurse = NPC.FindFirstNPC(NPCID.Nurse);
+            if(nurse>-1) {
+                chat.Add("you know I don’t need the nurse to help because I have my . . . uh, well \"ways\"");
+                if(Vector2.Distance(Main.npc[nurse].Center,this.npc.Center) < 30*16) { //*16 to convert from 30 tile coordinates to 480 world coordinates
+                    chat.Add($"Hey {Main.npc[nurse].GivenName}, how much for the healing potions. Not for sale? Well, what about I give you 5 platinum coins then.");
+                }
+            }
+            int merchant = NPC.FindFirstNPC(NPCID.Merchant);
+            if(merchant>-1) {
+                chat.Add("Hey did you know I heard that the reason the merchant can sell infinite piggy banks is that he has a vortex in his pockets, but don’t ask me how I know this, because a collector never tells his secrets, unless for a really high price.");
+            }
 			return chat; // chat is implicitly cast to a string. You can also do "return chat.Get();" if that makes you feel better
 		}
 
