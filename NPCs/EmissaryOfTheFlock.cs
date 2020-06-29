@@ -8,13 +8,15 @@ using static Terraria.ModLoader.ModContent;
 using System.Collections.Generic;
 using Terraria.Utilities;
 using Terraria.ModLoader.IO;
+using Platinum.Items.Wearable.Vanity;
 
 namespace Platinum.NPCs {
     // [AutoloadHead] and npc.townNPC are extremely important and absolutely both necessary for any Town NPC to work at all.
     [AutoloadHead]
     public class EmissaryOfTheFlock : ModNPC {
         public override string Texture => "Platinum/NPCs/EmissaryOfTheFlock";
-
+        public int[] questItems = { ItemID.TrashCan };
+        public int[] rewards = { ItemType<Omega>() };
 
         public override bool Autoload(ref string name) {
             name = "Brother of the Merchant of Travels";
@@ -147,12 +149,35 @@ namespace Platinum.NPCs {
 
         public override void SetChatButtons(ref string button, ref string button2) {
             button = Language.GetTextValue("LegacyInterface.28");
+            button2 = "Quest";
         }
         public override void OnChatButtonClicked(bool firstButton, ref bool shop) {
             if (firstButton) {
                 shop = true;
+            } else {
+                handleQuest();
             }
         }
+
+        private void handleQuest() {
+            platinumPlayer player = Main.player[Main.myPlayer].GetModPlayer<platinumPlayer>();
+            if(player.hasQuest==false) {
+                //give new quest
+                int item = WorldGen.genRand.Next<int>(questItems);
+                Main.npcChatText = $"So you see, I've been itching to get my hands on a {Lang.GetItemNameValue(item)} [i:{item}]. I'll get you somthing special if you can get me one.";
+                player.myQuestItem = item;
+                player.hasQuest = true;
+            } else if(player.player.HasItem(player.myQuestItem)) {//complete current quest
+                Main.npcChatText = $"Oh my! You found one! I am very greatful. Here! Here is your reward. I am going to have a lot of fun with this.";
+                int questItem = Main.LocalPlayer.FindItem(player.myQuestItem);
+                player.player.inventory[questItem].TurnToAir();
+                player.player.QuickSpawnItem(WorldGen.genRand.Next<int>(rewards));
+                player.hasQuest = false;
+            } else {
+                Main.npcChatText = $"Have you found a {Lang.GetItemNameValue(player.myQuestItem)} [i:{player.myQuestItem}]? No? Find me when you have one!";
+            }
+        }
+
         public override void SetupShop(Chest shop, ref int nextSlot) {
             foreach(Item item in shopItems) {
                 if (item == null || item.type == ItemID.None)
